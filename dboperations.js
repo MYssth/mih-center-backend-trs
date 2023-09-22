@@ -160,8 +160,13 @@ async function getAttd(psn_id) {
       .request()
       .input("psn_id", sql.VarChar, psn_id)
       .query(
-        "SELECT trs_topic_sub.*" +
+        "SELECT trs_topic_sub.topic_id" +
           ", trs_topic_sub.id AS sub_id" +
+          ", trs_topic_sub.name" +
+          ", trs_topic_sub.attd" +
+          ", trs_topic_sub.lmt" +
+          ", trs_topic_sub.start_date" +
+          ", trs_topic_sub.end_date" +
           ", trs_attd_list.psn_id" +
           ", trs_topic.name AS topic_name" +
           ", trs_topic.isactive" +
