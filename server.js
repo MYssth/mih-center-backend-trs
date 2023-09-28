@@ -112,6 +112,18 @@ router.route("/getattdpsn").get((request, response) => {
     });
 });
 
+router.route("/getexcelreport/:topic_id").get((request, response) => {
+  dboperations
+    .getExcelReport(request.params.topic_id)
+    .then((result) => {
+      response.json(result);
+    })
+    .catch((err) => {
+      console.error(err);
+      response.sendStatus(500);
+    });
+});
+
 router.route("/getversion").get((request, response) => {
   dboperations
     .getVersion()

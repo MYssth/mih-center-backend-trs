@@ -196,6 +196,7 @@ async function getAttdPsn() {
       .query(
         "SELECT trs_topic_sub.*" +
           ", trs_topic_sub.id AS sub_id" +
+          ", trs_topic_sub.name AS sub_name" +
           ", trs_attd_list.psn_id" +
           ", trs_topic.name AS topic_name" +
           ", trs_topic.isactive" +
@@ -228,6 +229,34 @@ async function getAttdPsn() {
   }
 }
 
+async function getExcelReport(topic_id) {
+  try {
+    console.log("getExcelReport call try connect to server");
+    let pool = await sql.connect(config);
+    console.log("connect complete");
+    let result = await pool
+      .request()
+      .input("topic_id", sql.VarChar, topic_id)
+      .query(
+        "SELECT" +
+          " trs_topic.id" +
+          ", MAX(trs_topic.name) AS topic_name" +
+          ", COUNT(trs_topic_sub.id) AS sub_amt" +
+          " FROM trs_topic" +
+          " LEFT JOIN trs_topic_sub ON" +
+          " trs_topic_sub.topic_id = trs_topic.id" +
+          " WHERE trs_topic.id = @topic_id" +
+          " GROUP BY trs_topic.id"
+      );
+    console.log("getExcelReport complete");
+    console.log("====================");
+    return result.recordset[0];
+  } catch (error) {
+    console.error(error);
+    return { status: "error", message: error.message };
+  }
+}
+
 async function getVersion() {
   try {
     return process.env.version;
@@ -244,5 +273,6 @@ module.exports = {
   getSubTopicList: getSubTopicList,
   getAttd: getAttd,
   getAttdPsn: getAttdPsn,
+  getExcelReport: getExcelReport,
   getVersion: getVersion,
 };
