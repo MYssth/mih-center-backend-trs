@@ -229,6 +229,52 @@ async function getAttdPsn() {
   }
 }
 
+async function getAttdPsnByTopic(topic_id) {
+  try {
+    console.log("getAttdPsnByTopic call try connect to server");
+    let pool = await sql.connect(config);
+    console.log("connect complete");
+    const psnList = await getAllPSNData();
+    let result = await pool
+      .request()
+      .input("topic_id", sql.VarChar, topic_id)
+      .query(
+        "SELECT trs_topic_sub.*" +
+          ", trs_topic_sub.id AS sub_id" +
+          ", trs_topic_sub.name AS sub_name" +
+          ", trs_attd_list.psn_id" +
+          ", trs_topic.name AS topic_name" +
+          ", trs_topic.isactive" +
+          " FROM trs_attd_list" +
+          " LEFT JOIN trs_topic_sub ON trs_topic_sub.id = trs_attd_list.sub_id" +
+          " AND trs_topic_sub.topic_id = trs_attd_list.topic_id" +
+          " LEFT JOIN trs_topic ON trs_topic.id = trs_attd_list.topic_id" +
+          " WHERE trs_attd_list.topic_id = @topic_id"
+      );
+    result = await result.recordsets[0];
+
+    for (let i = 0; i < result.length; i += 1) {
+      for (let n = 0; n < psnList.length; n += 1) {
+        if (result[i].psn_id === psnList[n].psn_id) {
+          await Object.assign(result[i], {
+            psn_name: `${psnList[n].pname}${psnList[n].fname} ${psnList[n].lname}`,
+            pos_name: psnList[n].pos_name,
+            dept_name: psnList[n].dept_name,
+            fac_name: psnList[n].fac_name,
+            fld_name: psnList[n].fld_name,
+          });
+        }
+      }
+    }
+    console.log("getAttdPsnByTopic complete");
+    console.log("====================");
+    return result;
+  } catch (error) {
+    console.error(error);
+    return { status: "error", message: error.message };
+  }
+}
+
 async function getExcelReport(topic_id) {
   try {
     console.log("getExcelReport call try connect to server");
@@ -273,6 +319,7 @@ module.exports = {
   getSubTopicList: getSubTopicList,
   getAttd: getAttd,
   getAttdPsn: getAttdPsn,
+  getAttdPsnByTopic: getAttdPsnByTopic,
   getExcelReport: getExcelReport,
   getVersion: getVersion,
 };
