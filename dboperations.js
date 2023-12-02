@@ -117,7 +117,7 @@ async function getTopicList() {
     console.log("getTopicList call try connect to server");
     let pool = await sql.connect(config);
     console.log("connect complete");
-    const result = await pool.request().query("SELECT * FROM trs_topic");
+    const result = await pool.request().query("SELECT * FROM trs_topic WHERE isactive = 1");
     console.log("getTopicList complete");
     console.log("====================");
     return result.recordsets[0];
@@ -311,6 +311,46 @@ async function getVersion() {
     return { status: "error", message: error.message };
   }
 }
+
+// async function isVoted(psn_id){
+//   console.log("Check is " + psn_id + " already vote");
+//   let pool = await sql.connect(config);
+//   let result = await pool
+//       .request()
+//       .input("psn_id", sql.VarChar, psn_id)
+//       .query(
+//         "SELECT" +
+//           " trs_topic.id" +
+//           ", MAX(trs_topic.name) AS topic_name" +
+//           ", COUNT(trs_topic_sub.id) AS sub_amt" +
+//           " FROM trs_topic" +
+//           " LEFT JOIN trs_topic_sub ON" +
+//           " trs_topic_sub.topic_id = trs_topic.id" +
+//           " WHERE trs_topic.id = @topic_id" +
+//           " GROUP BY trs_topic.id"
+//       );
+// }
+
+// async function popularVote(data){
+//   try {
+//     console.log("popularVote call try connect to server");
+//     let pool = await sql.connect(config);
+//     console.log("connect complete");
+//     console.log("")
+//   } catch (error) {
+//     console.error(error);
+//     return { status: "error", message: error.message };
+//   }
+// }
+
+// async function voteCheck(psn_id){
+//   try {
+//     return process.env.version;
+//   } catch (error) {
+//     console.error(error);
+//     return { status: "error", message: error.message };
+//   }
+// }
 
 module.exports = {
   topicAttd: topicAttd,
