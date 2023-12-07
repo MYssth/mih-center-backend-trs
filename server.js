@@ -148,6 +148,31 @@ router.route("/getversion").get((request, response) => {
     });
 });
 
+router.route("/votecheck/:id").get((request, response) => {
+  dboperations
+    .voteCheck(request.params.id)
+    .then((result) => {
+      response.json(result);
+    })
+    .catch((err) => {
+      console.error(err);
+      response.sendStatus(500);
+    });
+});
+
+router.route("/vote").post((request, response) => {
+  let data = { ...request.body };
+  dboperations
+    .vote(data)
+    .then((result) => {
+      response.json(result);
+    })
+    .catch((err) => {
+      console.error(err);
+      response.sendStatus(500);
+    });
+});
+
 var port = process.env.PORT;
 app.listen(port);
 console.log("TRS API is running at " + port);
